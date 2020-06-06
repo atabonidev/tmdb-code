@@ -1,0 +1,33 @@
+@inject IMovieDbServices MovieDbServices;
+
+<div class="card movie">
+    <a href="movie/@MovieElement.id"><img src="https://image.tmdb.org/t/p/w500/@MovieElement.poster_path" class="card-img-top" alt="Film cover"></a>
+    <div class="card-body mt-3 d-flex flex-column">
+        <a href="movie/@MovieElement.id" class="movie-title">@MovieElement.title</a>
+        <div class="movie-rating mt-1 d-flex flex-row">
+            <span class="orange"><i class="fas fa-star"></i></span>
+            <span class="ml-2">@MovieElement.rating()</span>
+            <span class="mx-2">|</span>
+            <span>@MovieElement.release_date</span>
+        </div>
+        <div class="movie__gender text-sm">
+            @foreach (var genre in MovieGenres)
+            {
+                @genre
+            }
+        </div> 
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Movie MovieElement { get; set; } = new Movie();
+
+    [Parameter]
+    public List<Genre> Genres { get; set; } = new List<Genre>();
+    public List<string> MovieGenres { get; set; } = new List<string>();
+
+    protected async override Task OnInitializedAsync() {
+        MovieGenres = await MovieDbServices.GetGenresOfMovie(MovieElement.id);
+    }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Progetto Esame",
+  "short_name": "TMDb",
+  "start_url": "./",
+  "display": "browser",
+  "background_color": "#ffffff",
+  "theme_color": "#343a40",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512 24x24"
+    }
+  ]
+}

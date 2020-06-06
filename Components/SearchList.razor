@@ -1,0 +1,46 @@
+@inject IJSRuntime JsRuntime;
+@inject NavigationManager Navigation;
+
+<input @onfocusout="@(() => InputFocusOut("search"))" @oninput="@((e) => LoadMovies(e.Value.ToString()))" @onclick="@(() => InputClick("search"))" @onclick:preventDefault id="searchInput" type="text" class="search-field form-control" placeholder="Search" />
+<div class="search-icon">
+    <i class="fas fa-search"></i>
+</div>
+
+<ul class="list-group search-results">
+    @foreach (var movie in SearchMovies)
+    {  
+        <a href="" @onclick="@(() => OnClick.InvokeAsync(@movie.id))" @onclick:preventDefault>
+            <li class="list-group-item d-flex flex-row align-items-center">
+                <img src="https://image.tmdb.org/t/p/w500/@movie.poster_path" alt="Film cover">
+                <h6 class="ml-4">@movie.title</h6>
+            </li>
+        </a>
+    }
+</ul>
+
+@code {
+    [Parameter]
+    public List<Movie> Movies { get; set; } = new List<Movie>();  
+    [Parameter]
+    public EventCallback<int> OnClick { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnFocusOut { get; set; }
+    public List<Movie> SearchMovies { get; set; } = new List<Movie>();
+
+    private void LoadMovies(string input) {
+        if(input != null) {
+            SearchMovies = Movies.Where(m => m.title.ToLower().Contains(input.ToLower())).ToList();
+        } else {
+            SearchMovies = null;
+        }
+    }
+
+    public async Task InputClick(string id) {
+        await JsRuntime.InvokeVoidAsync("focusElement", id);
+    }
+
+    public async Task InputFocusOut(string id) {
+        await JsRuntime.InvokeVoidAsync("focusOutElement", id);
+    }
+}

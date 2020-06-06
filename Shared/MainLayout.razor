@@ -1,0 +1,21 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation;
+@inject IJSRuntime JsRuntime;
+
+<div class="header">
+    <NavMenu OnClickSearchMovie="MovieClick" />
+</div>
+
+<div class="main">
+    <div class="container mt-4">
+        @Body
+    </div>
+</div>
+
+@code {
+    public async Task MovieClick(int movieId) {
+        string id = "search";
+        Navigation.NavigateTo("/tmdb/movie/" + movieId);
+        await JsRuntime.InvokeVoidAsync("focusOutElement", id);
+    }
+}

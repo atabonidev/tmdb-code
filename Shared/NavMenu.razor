@@ -1,0 +1,74 @@
+﻿@inject IMovieDbServices MovieDbServices; 
+@inject IJSRuntime JsRuntime;
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark">
+    <div class="container">
+        <NavLink class="navbar-brand d-flex align-items-center" href="" Match="NavLinkMatch.All">
+            <svg id="Capa_1" enable-background="new 0 0 512 512" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m390 315v92l122 65v-222z"/><circle cx="270" cy="120" r="90"/><circle cx="90" cy="120" r="90"/><path d="m75 315h210v92h-210z"/><path d="m0 240v242h360v-242zm315 45v152h-270v-152z"/></g></svg>
+            <span class="ml-2">TMDB</span>
+        </NavLink>
+        <button class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="@NavMenuCssClass navbar-menu">
+            <ul class="navbar-nav">
+                <li class="nav-item mr-2">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Movies</NavLink>
+                </li>
+            </ul>
+        </div>
+        <div class="@NavMenuCssClass search" id="search">
+            <input @oninput="@((e) => LoadMovies(e.Value.ToString()))" @onclick="@(() => InputClick("search"))" @onclick:preventDefault id="searchInput" type="text" class="search-field form-control" placeholder="Search" />
+            <div class="search-icon">
+                <i class="fas fa-search"></i>
+            </div>
+
+            <ul class="list-group search-results">
+                @foreach (var movie in SearchMovies)
+                {  
+                    <a href="" @onclick="@(() => OnClickSearchMovie.InvokeAsync(@movie.id))" @onclick:preventDefault>
+                        <li class="list-group-item d-flex flex-row align-items-center">
+                            <img src="https://image.tmdb.org/t/p/w500/@movie.poster_path" alt="Film cover">
+                            <h6 class="ml-4">@movie.title</h6>
+                        </li>
+                    </a>
+                }
+            </ul>
+        </div>
+    </div>
+</nav>
+
+@code {
+    [Parameter]
+    public EventCallback<int> OnClickSearchMovie { get; set; }
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    public List<Movie> AllMovies { get; set; } = new List<Movie>();
+    
+    public List<Movie> SearchMovies { get; set; } = new List<Movie>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        AllMovies = await MovieDbServices.GetAllMovies();
+    }
+
+    public async Task InputClick(string id)
+    {
+        await JsRuntime.InvokeVoidAsync("focusElement", id);
+    }
+
+    private void LoadMovies(string input) {
+        if(input != null) {
+            SearchMovies = AllMovies.Where(m => m.title.ToLower().Contains(input.ToLower())).ToList();
+        } else {
+            SearchMovies = null;
+        }
+    }
+}
